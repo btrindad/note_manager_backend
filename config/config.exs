@@ -48,7 +48,8 @@ config :spark,
 
 config :note_manager,
   ecto_repos: [NoteManager.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  ash_domains: [NoteManager.KnowledgeBase]
 
 # Configure the endpoint
 config :note_manager, NoteManagerWeb.Endpoint,
