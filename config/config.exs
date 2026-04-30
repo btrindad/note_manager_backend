@@ -51,6 +51,10 @@ config :note_manager,
   generators: [timestamp_type: :utc_datetime],
   ash_domains: [NoteManager.KnowledgeBase]
 
+# Add the custom Postgrex types
+config :note_manager, NoteManager.Repo,
+  types: NoteManager.PostgrexTypes
+
 # Configure the endpoint
 config :note_manager, NoteManagerWeb.Endpoint,
   url: [host: "localhost"],
