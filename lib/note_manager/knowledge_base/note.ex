@@ -12,11 +12,25 @@ defmodule NoteManager.KnowledgeBase.Note do
   attributes do
     uuid_primary_key :id
 
-    attribute :content, :text do
+    attribute :content, :string do
       allow_nil? false
     end
 
     attribute :embedding, :vector
     timestamps()
+  end
+
+  actions do
+    defaults [:read, :destroy]
+
+    create :create do
+      primary? true
+      accept [:content]
+    end
+
+    update :update do
+      primary? true
+      accept [:content]
+    end
   end
 end

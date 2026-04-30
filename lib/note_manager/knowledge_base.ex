@@ -3,6 +3,12 @@ defmodule NoteManager.KnowledgeBase do
     otp_app: :note_manager
 
   resources do
-    resource NoteManager.KnowledgeBase.Note
+    resource NoteManager.KnowledgeBase.Note do
+      define :new_note, action: :create
+      define :destroy_note, action: :destroy
+      define :update_note, action: :update
+      define :list_notes, action: :read
+      define :get_node_by_id, action: :read, get_by: :id
+    end
   end
 end
