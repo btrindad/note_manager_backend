@@ -7,18 +7,19 @@ defmodule NoteManager.KnowledgeBaseTest do
   setup do
     [
       simple_note:  """
-        # Sample Title
+      # Sample Title
         
-        Note body goes here supporting
+      Note body goes here supporting
 
-        * Markdown content
-        * Listing
-        * and eventually linking 
+      * Markdown content
+      * Listing
+      * and eventually linking 
 
-        ```elixir
-        sample_code.(arg1, arg2)
-        ```
+      ```elixir
+      sample_code.(arg1, arg2)
+      ```
       """
+      |> String.trim()
     ]
   end
 
@@ -37,7 +38,7 @@ defmodule NoteManager.KnowledgeBaseTest do
       note = Ash.get!(Note, id)
 
       for {key, val} <- params do
-        assert val == Map.fetch(note, key)
+        assert {:ok, val} == Map.fetch(note, key)
       end
     end
   end
