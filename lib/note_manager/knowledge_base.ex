@@ -8,7 +8,7 @@ defmodule NoteManager.KnowledgeBase do
       define :destroy_note, action: :destroy
       define :update_note, action: :update
       define :list_notes, action: :read
-      define :get_node_by_id, action: :read, get_by: :id
+      define :get_note_by_id, action: :read, get_by: :id
     end
   end
 end

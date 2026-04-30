@@ -42,4 +42,31 @@ defmodule NoteManager.KnowledgeBaseTest do
       end
     end
   end
+
+  describe "KnowledgeBase.destroy_note" do
+    setup do
+      [note: generate(note())]
+    end
+
+    test "deletes the note from the database", %{note: note} do
+      assert :ok = KG.destroy_note(note)
+
+      assert {:error, _} = Ash.get(Note, note.id)
+    end
+  end
+
+  describe "KnowledgeBase.update_note" do
+    setup %{simple_note: content} do
+      [note: generate(note()), params: %{content: content}]
+    end
+
+    test "saves the new content to the database", %{note: note, params: update_params} do
+      assert {:ok, _} = KG.update_note(note, update_params)
+
+      saved_note = Ash.get!(Note, note.id)
+
+      assert saved_note.content == update_params.content
+      assert saved_note.content != note.content
+    end
+  end
 end
