@@ -24,6 +24,7 @@ defmodule NoteManager.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import NoteManager.DataCase
+      import NoteManager.KnowledgeBaseGenerator
     end
   end
 
