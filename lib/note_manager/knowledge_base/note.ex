@@ -17,7 +17,6 @@ defmodule NoteManager.KnowledgeBase.Note do
       allow_nil? false
     end
 
-    attribute :embedding, :vector
     timestamps()
   end
 
@@ -37,12 +36,16 @@ defmodule NoteManager.KnowledgeBase.Note do
 
   vectorize do
     full_text do
-      text(&(&1.content))
+      text(fn note ->
+        note.content
+      end)
+
+      used_attributes [:content]
+      name :embedding
     end
 
     strategy :after_action
-    attributes(content: :embedding)
-
-    embedding_model Application.compile_env(:note_manager, :embedding_module, NoteManager.LlmAdapter.Local)
+    embedding_model NoteManager.LlmAdapter.Local
+    # embedding_model Application.compile_env(:note_manager, :embedding_module, NoteManager.LlmAdapter.Local)
   end
 end

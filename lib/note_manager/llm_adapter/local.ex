@@ -1,27 +1,32 @@
 defmodule NoteManager.LlmAdapter.Local do
   use AshAi.EmbeddingModel
 
+  @default_model "intfloat/e5-large"
+  @default_dim 1024
+
   def child_spec(opts \\ []) do
     {
       Nx.Serving,
-      serving: __MODULE__.serving(opts),
-      name: __MODULE__,
-      batch_size: 10,
-      batch_timeout: 100 # ms 
+      serving: __MODULE__.serving(opts), name: __MODULE__, batch_size: 10, batch_timeout: 100
     }
     |> Supervisor.child_spec([])
   end
 
   @impl true
-  def dimensions(_opts) do
-    3072
+  def dimensions(opts) do
+    opts
+    |> Keyword.get(
+      :dimensions,
+      Application.get_env(:note_manager, :embedding_size, @default_dim)
+    )
   end
 
   @impl true
   def generate(texts, opts) do
-    texts
-    |> maybe_join()
-    |> get_embedding(opts)
+    with joined <- maybe_join(texts),
+         {:ok, embedding} <- get_embedding(joined, opts) do
+      {:ok, [convert_to_vector(embedding)]}
+    end
   end
 
   defp maybe_join(text) when is_binary(text), do: text
@@ -31,7 +36,18 @@ defmodule NoteManager.LlmAdapter.Local do
     opts
     |> Keyword.get(:serving, __MODULE__)
     |> Nx.Serving.batched_run(input)
+    |> Map.fetch(:embedding)
+    |> case do
+      {:ok, embedding} -> {:ok, embedding}
+      :error -> {:error, :embedding_failed}
+    end
   end
+
+  defp convert_to_vector(%Nx.Tensor{} = tensor) do
+    tensor
+    |> Nx.to_list()
+  end
+  defp convert_to_vector(list) when is_list(list), do: list
 
   @doc """
   Launch a local text embedding model as an Nx.Serving
@@ -39,7 +55,7 @@ defmodule NoteManager.LlmAdapter.Local do
   using a remote API
   """
   def serving(opts \\ []) do
-    model_name = Keyword.get(opts, :model, "intfloat/e5-large")
+    model_name = Keyword.get(opts, :model, @default_model)
 
     {:ok, model_info} = Bumblebee.load_model({:hf, model_name})
     {:ok, tokenizer} = Bumblebee.load_tokenizer({:hf, model_name})
