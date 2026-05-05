@@ -3,8 +3,8 @@ defmodule NoteManager.LlmAdapter.Local do
 
   require Logger
 
-  @default_model "intfloat/e5-large"
-  @default_dim 1024
+  @default_model "thenlper/gte-small"
+  @default_dim 384
 
   def child_spec(opts \\ []) do
     Logger.debug "Launching local model with: #{__MODULE__}"
