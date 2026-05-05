@@ -2,7 +2,8 @@ defmodule NoteManager.KnowledgeBase.Note do
   use Ash.Resource,
     otp_app: :note_manager,
     domain: NoteManager.KnowledgeBase,
-    data_layer: AshPostgres.DataLayer
+    data_layer: AshPostgres.DataLayer,
+    extensions: AshAi
 
   postgres do
     table "notes"
@@ -32,5 +33,14 @@ defmodule NoteManager.KnowledgeBase.Note do
       primary? true
       accept [:content]
     end
+  end
+
+  vectorize do
+    full_text do
+      text(&(&1.content))
+    end
+
+    strategy :after_action
+    attributes(content: :embedding)
   end
 end
