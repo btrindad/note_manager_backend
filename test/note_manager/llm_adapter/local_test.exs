@@ -10,7 +10,7 @@ defmodule NoteManager.LlmAdapter.LocalTest do
 
   describe "dimensions/1" do
     test "returns the expected embedding size" do
-      assert LocalLLM.dimensions([]) == 1024
+      assert LocalLLM.dimensions([]) == 384
     end
 
     test "accepts an optional override" do
@@ -27,7 +27,7 @@ defmodule NoteManager.LlmAdapter.LocalTest do
       assert {:ok, [[num | _] = vector]} = LocalLLM.generate(input, [])
 
       assert is_float(num)
-      assert length(vector) == 1024
+      assert length(vector) == 384
     end
   end
 end

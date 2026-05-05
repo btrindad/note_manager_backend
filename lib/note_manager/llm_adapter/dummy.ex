@@ -3,7 +3,7 @@ defmodule NoteManager.LlmAdapter.Dummy do
 
   require Logger
 
-  @default_dim 1024
+  @default_dim 384
 
   def child_spec(_opts \\ []), do: nil
 
