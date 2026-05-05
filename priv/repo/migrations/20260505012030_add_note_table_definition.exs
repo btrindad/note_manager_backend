@@ -1,4 +1,4 @@
-defmodule NoteManager.Repo.Migrations.MigrateResources1 do
+defmodule NoteManager.Repo.Migrations.AddNoteTableDefinition do
   @moduledoc """
   Updates resources based on their most recent snapshots.
 

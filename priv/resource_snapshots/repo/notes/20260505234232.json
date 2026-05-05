@@ -25,18 +25,6 @@
       "type": "text"
     },
     {
-      "allow_nil?": true,
-      "default": "nil",
-      "generated?": false,
-      "precision": null,
-      "primary_key?": false,
-      "references": null,
-      "scale": null,
-      "size": null,
-      "source": "embedding",
-      "type": "vector"
-    },
-    {
       "allow_nil?": false,
       "default": "fragment(\"(now() AT TIME ZONE 'utc')\")",
       "generated?": false,
@@ -59,6 +47,18 @@
       "size": null,
       "source": "updated_at",
       "type": "utc_datetime_usec"
+    },
+    {
+      "allow_nil?": true,
+      "default": "nil",
+      "generated?": false,
+      "precision": null,
+      "primary_key?": false,
+      "references": null,
+      "scale": null,
+      "size": 384,
+      "source": "embedding",
+      "type": "vector"
     }
   ],
   "base_filter": null,
@@ -67,7 +67,7 @@
   "custom_indexes": [],
   "custom_statements": [],
   "has_create_action": true,
-  "hash": "EF69ED131343AEA67DFD2AE4C85BCFC1ACE01FCB9931A23848CF82A94CF7CD6C",
+  "hash": "D1B3F012E2BD83B9B21BFAC3102A05039EDC9F46A08CFE91FE0C2C73F1FBDCDB",
   "identities": [],
   "multitenancy": {
     "attribute": null,

@@ -52,8 +52,7 @@ config :note_manager,
   ash_domains: [NoteManager.KnowledgeBase]
 
 # Add the custom Postgrex types
-config :note_manager, NoteManager.Repo,
-  types: NoteManager.PostgrexTypes
+config :note_manager, NoteManager.Repo, types: NoteManager.PostgrexTypes
 
 # Configure the endpoint
 config :note_manager, NoteManagerWeb.Endpoint,
@@ -75,6 +74,8 @@ config :note_manager, NoteManagerWeb.Endpoint,
 # at the `config/runtime.exs`.
 config :note_manager, NoteManager.Mailer, adapter: Swoosh.Adapters.Local
 
+config :note_manager, :embedding_size, 384
+
 # Configure Elixir's Logger
 config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
@@ -82,6 +83,9 @@ config :logger, :default_formatter,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+config :nx, :default_backend, EXLA.Backend
+config :nx, :default_defn_options, compiler: EXLA
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
