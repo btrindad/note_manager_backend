@@ -5,12 +5,6 @@ defmodule NoteManager.Application do
 
   use Application
 
-  @embedding_module Application.compile_env(
-                      :note_manager,
-                      :embedding_module,
-                      NoteManager.LlmAdapter.Local
-                    )
-
   @impl true
   def start(_type, _args) do
     children =
@@ -19,7 +13,7 @@ defmodule NoteManager.Application do
         NoteManager.Repo,
         {DNSCluster, query: Application.get_env(:note_manager, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: NoteManager.PubSub},
-        llm_application(@embedding_module),
+        llm_application(Application.get_env(:note_manager, :embedding_module, :local)),
         # Start a worker by calling: NoteManager.Worker.start_link(arg)
         # {NoteManager.Worker, arg},
         # Start to serve requests, typically the last entry
@@ -50,5 +44,5 @@ defmodule NoteManager.Application do
   defp llm_application(model_info) when is_binary(model_info),
     do: {NoteManager.LlmAdapter.Local, model: model_info}
 
-  defp llm_application(module) when is_atom(module), do: module
+  defp llm_application(module) when is_atom(module), do: module.child_spec([])
 end

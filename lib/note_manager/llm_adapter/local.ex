@@ -1,10 +1,14 @@
 defmodule NoteManager.LlmAdapter.Local do
   use AshAi.EmbeddingModel
 
+  require Logger
+
   @default_model "intfloat/e5-large"
   @default_dim 1024
 
   def child_spec(opts \\ []) do
+    Logger.debug "Launching local model with: #{__MODULE__}"
+
     {
       Nx.Serving,
       serving: __MODULE__.serving(opts), name: __MODULE__, batch_size: 10, batch_timeout: 100
@@ -23,6 +27,7 @@ defmodule NoteManager.LlmAdapter.Local do
 
   @impl true
   def generate(texts, opts) do
+    Logger.debug "#{__MODULE__}: embedding request received"
     with joined <- maybe_join(texts),
          {:ok, embedding} <- get_embedding(joined, opts) do
       {:ok, [convert_to_vector(embedding)]}
