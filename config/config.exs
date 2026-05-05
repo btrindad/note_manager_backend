@@ -52,8 +52,7 @@ config :note_manager,
   ash_domains: [NoteManager.KnowledgeBase]
 
 # Add the custom Postgrex types
-config :note_manager, NoteManager.Repo,
-  types: NoteManager.PostgrexTypes
+config :note_manager, NoteManager.Repo, types: NoteManager.PostgrexTypes
 
 # Configure the endpoint
 config :note_manager, NoteManagerWeb.Endpoint,

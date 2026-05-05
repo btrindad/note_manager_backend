@@ -40,6 +40,7 @@ defmodule NoteManager.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:ash_ai, "~> 0.6"},
       {:sourceror, "~> 1.8", only: [:dev, :test]},
       {:ash_postgres, "~> 2.0"},
       {:ash_phoenix, "~> 2.0"},
