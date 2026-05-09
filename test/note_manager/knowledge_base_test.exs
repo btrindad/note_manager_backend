@@ -73,9 +73,11 @@ defmodule NoteManager.KnowledgeBaseTest do
 
   describe "search/1" do
     setup do
+      generate_many(note(), 3)
 
-      generate_many(note(), 20)
-      [sample_note: generate(note(content: "Programming Languages like Elixir are so cool"))]
+      [
+        sample_note: generate(note(content: "Programming Languages like Elixir are so cool"))
+      ]
     end
 
     @tag :acceptance
@@ -86,10 +88,11 @@ defmodule NoteManager.KnowledgeBaseTest do
     end
 
     @tag :acceptance
+    @tag :focus
     test "returns notes with semantic similarity", %{sample_note: note} do
       assert {:ok, note_list} = KG.search(%{query: "writing code"})
 
-      assert Enum.any?(note_list, fn %Note{id: note_id} -> note_id == note.id end)
+      assert Enum.any?(note_list.results, fn %Note{id: note_id} -> note_id == note.id end)
     end
   end
 end
