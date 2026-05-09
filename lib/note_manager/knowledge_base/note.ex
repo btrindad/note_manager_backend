@@ -15,6 +15,7 @@ defmodule NoteManager.KnowledgeBase.Note do
 
     attribute :content, :string do
       allow_nil? false
+      constraints allow_empty?: false
     end
 
     timestamps()
@@ -31,6 +32,17 @@ defmodule NoteManager.KnowledgeBase.Note do
     update :update do
       primary? true
       accept [:content]
+    end
+
+    read :search do
+      argument :query, :ci_string do
+        description "search notes by content"
+        constraints allow_empty?: false
+      end
+
+      prepare {NoteManager.KnowledgeBase.Preparations.VectorSearch, search_attribute: :content}
+
+      pagination offset?: true, default_limit: 15
     end
   end
 
