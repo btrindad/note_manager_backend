@@ -3,10 +3,10 @@ defmodule NoteManager.LlmAdapter.LocalTest do
 
   alias NoteManager.LlmAdapter.Local, as: LocalLLM
 
-  setup_all do
-    start_supervised!(LocalLLM)
-    :ok
-  end
+  # setup_all do
+  #   start_supervised!(LocalLLM)
+  #   :ok
+  # end
 
   describe "dimensions/1" do
     test "returns the expected embedding size" do

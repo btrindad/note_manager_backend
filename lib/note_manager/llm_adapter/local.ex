@@ -17,8 +17,9 @@ defmodule NoteManager.LlmAdapter.Local do
   end
 
   @impl true
-  def dimensions(opts) do
+  def dimensions(opts \\ []) do
     opts
+    |> ensure_list()
     |> Keyword.get(
       :dimensions,
       Application.get_env(:note_manager, :embedding_size, @default_dim)
@@ -26,7 +27,7 @@ defmodule NoteManager.LlmAdapter.Local do
   end
 
   @impl true
-  def generate(texts, opts) do
+  def generate(texts, opts \\ []) do
     Logger.debug "#{__MODULE__}: embedding request received"
     with joined <- maybe_join(texts),
          {:ok, embedding} <- get_embedding(joined, opts) do
@@ -39,6 +40,7 @@ defmodule NoteManager.LlmAdapter.Local do
 
   defp get_embedding(input, opts) do
     opts
+    |> ensure_list()
     |> Keyword.get(:serving, __MODULE__)
     |> Nx.Serving.batched_run(input)
     |> Map.fetch(:embedding)
@@ -47,6 +49,9 @@ defmodule NoteManager.LlmAdapter.Local do
       :error -> {:error, :embedding_failed}
     end
   end
+
+  defp ensure_list(nil), do: []
+  defp ensure_list(list) when is_list(list), do: list
 
   defp convert_to_vector(%Nx.Tensor{} = tensor) do
     tensor
