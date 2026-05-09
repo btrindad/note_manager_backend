@@ -40,7 +40,7 @@ defmodule NoteManager.KnowledgeBase.Note do
         constraints allow_empty?: false
       end
 
-      prepare {NoteManager.KnowledgeBase.Preparations.VectorSearch, search_attribute: :content}
+      prepare {NoteManager.KnowledgeBase.Preparations.VectorSearch, search_attribute: :embedding}
 
       pagination offset?: true, default_limit: 15
     end

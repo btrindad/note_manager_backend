@@ -15,8 +15,8 @@ defmodule NoteManager.KnowledgeBase.Preparations.VectorSearch do
                     ],
                     search_attribute: [
                       type: :atom,
-                      default: :body,
-                      doc: "The resource attribute to search against"
+                      default: :embedding,
+                      doc: "The name of the vector column to search against"
                     ],
                     embedding_opts: [
                       doc: "Options to pass to the underlying embedding module",
@@ -30,7 +30,7 @@ defmodule NoteManager.KnowledgeBase.Preparations.VectorSearch do
                     ]
                   )
 
-  require Ash.Query
+  import Ash.Expr
 
   @impl true
   def init(opts) do
@@ -43,16 +43,18 @@ defmodule NoteManager.KnowledgeBase.Preparations.VectorSearch do
   @impl true
   def prepare(query, opts, _context) do
     input_attr = query.arguments[opts[:input_argument]]
+    search_field = opts[:search_attribute]
+    threshold = opts[:threshold]
 
-    Ash.Query.before_action(query, fn query, _context ->
+    Ash.Query.before_action(query, fn query ->
       with {:ok, [search_vector]} <-
              @embedding_module.generate([input_attr], opts[:embedding_opts]) do
         query
         |> Ash.Query.filter(
-          vector_cosine_distance(opts[:search_attribute], ^search_vector) < opts[:threshold]
+          vector_cosine_distance(^ref(search_field), ^search_vector) < ^threshold
         )
         |> Ash.Query.sort({
-          calc(vector_cosine_distance(opts[:search_attribute], search_vector), type: :float),
+          calc(vector_cosine_distance(^ref(search_field), ^search_vector), type: :float),
           :asc
         })
       end
