@@ -73,9 +73,9 @@ defmodule NoteManager.KnowledgeBaseTest do
 
   describe "search/1" do
     setup do
-      generate_many(note(), 100)
 
-      [sample_note: note(content: "Programming Languages like Elixir are so cool")]
+      generate_many(note(), 20)
+      [sample_note: generate(note(content: "Programming Languages like Elixir are so cool"))]
     end
 
     @tag :acceptance
