@@ -46,6 +46,5 @@ defmodule NoteManager.KnowledgeBase.Note do
 
     strategy :after_action
     embedding_model Application.compile_env(:note_manager, :embedding_module, NoteManager.LlmAdapter.Local)
-    # embedding_model Application.get_env(:note_manager, :embedding_module, NoteManager.LlmAdapter.Local)
   end
 end
