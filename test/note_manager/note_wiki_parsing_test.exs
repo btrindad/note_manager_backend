@@ -99,4 +99,71 @@ defmodule NoteManager.NoteWikiParsingTest do
                |> Ash.count!()
     end
   end
+
+  describe "updating a note with links" do
+    setup %{linked_note: content} do
+      original = generate(note(content: content))
+      new_target = generate(note())
+
+      new_content = """
+      # Updated Note
+
+      These are the new contents of the original note but now they
+      link to a new [[#{new_target.id}|destination]]
+      """
+
+      [note: original, new_target: new_target, updated_content: new_content]
+    end
+
+    test "original target is no longer connected to the note", %{
+      note: note,
+      updated_content: content,
+      target_note: %{id: original_target_id}
+    } do
+      assert {:ok, %KG.Note{neighbors: neigh}} =
+               KG.update_note(note, %{content: content}, load: :neighbors)
+
+      refute neigh
+             |> Enum.map(& &1.id)
+             |> Enum.member?(original_target_id)
+
+      assert 0 ==
+               KG.NoteLink
+               |> Ash.Query.filter(target_note_id == ^original_target_id)
+               |> Ash.count!()
+    end
+
+    test "new target is connected to the note", %{
+      note: note,
+      updated_content: content,
+      new_target: %{id: new_target_id}
+    } do
+      assert {:ok, %KG.Note{neighbors: neigh}} =
+               KG.update_note(note, %{content: content}, load: :neighbors)
+
+      assert length(neigh) == 1
+      assert [%KG.Note{id: ^new_target_id}] = neigh
+    end
+  end
+
+  describe "note linking to itself" do
+    setup do
+      original = generate(note())
+
+      updated_content = """
+      # Self linked Note
+
+      This note is going to try and write a link
+      to [[#{original.id}|itself]]. 
+      """
+
+      [note: original, content: updated_content]
+    end
+
+    test "links to self are ignored", %{note: note, content: content} do
+      assert {:ok, %KG.Note{neighbors: neigh}} = KG.update_note(note, %{content: content})
+
+      assert length(neigh) == 0
+    end
+  end
 end
