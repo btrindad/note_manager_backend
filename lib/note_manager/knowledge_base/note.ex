@@ -8,17 +8,32 @@ defmodule NoteManager.KnowledgeBase.Note do
   postgres do
     table "notes"
     repo NoteManager.Repo
+
+    custom_statements do
+      statement :vector_idx do
+        up "CREATE INDEX vector_idx ON notes USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 64)"
+        down "DROP INDEX vector_idx;"
+      end
+    end
   end
 
-  attributes do
-    uuid_primary_key :id
+  vectorize do
+    full_text do
+      text fn note ->
+        note.content
+      end
 
-    attribute :content, :string do
-      allow_nil? false
-      constraints allow_empty?: false
+      used_attributes [:content]
+      name :embedding
     end
 
-    timestamps()
+    strategy :after_action
+
+    embedding_model Application.compile_env(
+                      :note_manager,
+                      :embedding_module,
+                      NoteManager.LlmAdapter.Local
+                    )
   end
 
   actions do
@@ -46,17 +61,14 @@ defmodule NoteManager.KnowledgeBase.Note do
     end
   end
 
-  vectorize do
-    full_text do
-      text(fn note ->
-        note.content
-      end)
+  attributes do
+    uuid_primary_key :id
 
-      used_attributes [:content]
-      name :embedding
+    attribute :content, :string do
+      allow_nil? false
+      constraints allow_empty?: false
     end
 
-    strategy :after_action
-    embedding_model Application.compile_env(:note_manager, :embedding_module, NoteManager.LlmAdapter.Local)
+    timestamps()
   end
 end
