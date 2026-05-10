@@ -35,10 +35,13 @@ defmodule NoteManager.NoteWikiParsingTest do
     end
   end
 
-  # test "saves outgoing links to other notes", %{note_content: content, target_note: target} do
-  #   assert {:ok, %KG.Note{outgoing_neighbors: neigh}} = KG.new_note(%{content: content})
+  describe "saving a note with links" do
+    test "saves outgoing links to other notes", %{note_content: content, target_note: target} do
+      assert {:ok, %KG.Note{neighbors: neigh}} =
+               KG.new_note(%{content: content}, load: [neighbors: :id])
 
-  #   assert length(neigh) == 1
-  #   assert neigh == [target.id]
-  # end
+      assert length(neigh) == 1
+      assert neigh == [target.id]
+    end
+  end
 end
