@@ -9,6 +9,7 @@ defmodule NoteManager.LlmAdapter.Dummy do
 
   @impl true
   def dimensions(nil), do: @default_dim
+
   def dimensions(opts) do
     opts
     |> Keyword.get(

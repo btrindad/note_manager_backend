@@ -7,7 +7,7 @@ defmodule NoteManager.LlmAdapter.Local do
   @default_dim 384
 
   def child_spec(opts \\ []) do
-    Logger.debug "Launching local model with: #{__MODULE__}"
+    Logger.debug("Launching local model with: #{__MODULE__}")
 
     {
       Nx.Serving,
@@ -28,7 +28,8 @@ defmodule NoteManager.LlmAdapter.Local do
 
   @impl true
   def generate(texts, opts \\ []) do
-    Logger.debug "#{__MODULE__}: embedding request received"
+    Logger.debug("#{__MODULE__}: embedding request received")
+
     with joined <- maybe_join(texts),
          {:ok, embedding} <- get_embedding(joined, opts) do
       {:ok, [convert_to_vector(embedding)]}
@@ -57,6 +58,7 @@ defmodule NoteManager.LlmAdapter.Local do
     tensor
     |> Nx.to_list()
   end
+
   defp convert_to_vector(list) when is_list(list), do: list
 
   @doc """
