@@ -3,10 +3,9 @@ defmodule NoteManager.NoteWikiParsingTest do
 
   alias NoteManager.KnowledgeBase.Note.ContentParser
   alias NoteManager.KnowledgeBase, as: KG
+  alias NoteManager.GraphDbClient, as: Graph
 
   require Ash.Query
-
-  @moduletag :focus
 
   setup do
     existing_note = generate(note())
@@ -64,6 +63,19 @@ defmodule NoteManager.NoteWikiParsingTest do
     test "saves notes with no links", %{standalone_note: content} do
       assert {:ok, %KG.Note{neighbors: []}} =
                KG.new_note(%{content: content}, load: [neighbors: :id])
+    end
+
+    @tag :focus
+    test "sends a request to the graph database", %{linked_note: content} do
+      test_pid = self()
+
+      Req.Test.stub(Graph, fn conn ->
+        send(test_pid, {:request_received, conn})
+        Req.Test.json(conn, %{status: :ok})
+      end)
+
+      assert {:ok, %KG.Note{}} = KG.new_note(%{content: content})
+      assert_receive {:request_received, _}, 3_000
     end
   end
 
