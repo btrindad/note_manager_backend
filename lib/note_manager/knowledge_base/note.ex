@@ -45,14 +45,14 @@ defmodule NoteManager.KnowledgeBase.Note do
       primary? true
       accept [:content]
 
-      change ExtractLinks
+      pipe_through :update_graph
     end
 
     update :update do
       primary? true
       accept [:content]
 
-      change ExtractLinks
+      pipe_through :update_graph
       require_atomic? false
     end
 
@@ -86,6 +86,12 @@ defmodule NoteManager.KnowledgeBase.Note do
       source_attribute_on_join_resource :source_note_id
       destination_attribute_on_join_resource :target_note_id
       writable? true
+    end
+  end
+
+  pipelines do
+    pipeline :update_graph do
+      change ExtractLinks
     end
   end
 end
