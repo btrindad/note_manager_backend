@@ -71,4 +71,13 @@ defmodule NoteManager.KnowledgeBase.Note do
 
     timestamps()
   end
+
+  relationships do
+    many_to_many :neighbors, NoteManager.KnowledgeBase.Note do
+      through NoteManager.KnowledgeBase.NoteLink
+
+      source_attribute_on_join_resource :source_note_id
+      destination_attribute_on_join_resource :target_note_id
+    end
+  end
 end
