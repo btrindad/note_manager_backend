@@ -6,6 +6,8 @@ defmodule NoteManager.NoteWikiParsingTest do
 
   @moduletag :focus
 
+  require Ash.Query
+
   setup do
     existing_note = generate(note())
 
@@ -62,6 +64,39 @@ defmodule NoteManager.NoteWikiParsingTest do
     test "saves notes with no links", %{standalone_note: content} do
       assert {:ok, %KG.Note{neighbors: []}} =
                KG.new_note(%{content: content}, load: [neighbors: :id])
+    end
+  end
+
+  describe "deleting a note with links" do
+    setup %{linked_note: content} do
+      [note: generate(note(content: content))]
+    end
+
+    test "does not delete connected notes", %{note: note, target_note: %{id: target_id}} do
+      assert :ok = KG.destroy_note(note)
+
+      assert {:ok, %KG.Note{id: ^target_id}} =
+               Ash.get(KG.Note, target_id, not_found_error?: false)
+    end
+
+    test "deletes source connections from the join table", %{note: note} do
+      assert :ok = KG.destroy_note(note)
+
+      assert 0 ==
+               KG.NoteLink
+               |> Ash.Query.new()
+               |> Ash.Query.filter(source_note_id == ^note.id)
+               |> Ash.count!()
+    end
+
+    test "deletes destination connections from the join table", %{target_note: target} do
+      assert :ok = KG.destroy_note(target)
+
+      assert 0 ==
+               KG.NoteLink
+               |> Ash.Query.new()
+               |> Ash.Query.filter(target_note_id == ^target.id)
+               |> Ash.count!()
     end
   end
 end
