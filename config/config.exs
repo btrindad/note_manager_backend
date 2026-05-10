@@ -73,7 +73,6 @@ config :note_manager, NoteManagerWeb.Endpoint,
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
 config :note_manager, NoteManager.Mailer, adapter: Swoosh.Adapters.Local
-
 config :note_manager, :embedding_size, 384
 
 # Configure Elixir's Logger

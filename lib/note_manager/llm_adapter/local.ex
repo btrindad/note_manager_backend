@@ -11,7 +11,7 @@ defmodule NoteManager.LlmAdapter.Local do
 
     {
       Nx.Serving,
-      serving: __MODULE__.serving(opts), name: __MODULE__, batch_size: 10, batch_timeout: 100
+      serving: __MODULE__.serving(opts), name: __MODULE__, batch_timeout: 100
     }
     |> Supervisor.child_spec([])
   end
@@ -67,11 +67,15 @@ defmodule NoteManager.LlmAdapter.Local do
   using a remote API
   """
   def serving(opts \\ []) do
-    model_name = Keyword.get(opts, :model, @default_model)
+    {model_name, opts} = Keyword.pop(opts, :model, @default_model)
 
     {:ok, model_info} = Bumblebee.load_model({:hf, model_name})
     {:ok, tokenizer} = Bumblebee.load_tokenizer({:hf, model_name})
 
-    Bumblebee.Text.text_embedding(model_info, tokenizer)
+    opts =
+      Application.get_env(:note_manager, __MODULE__, [])
+      |> Keyword.merge(opts)
+
+    Bumblebee.Text.text_embedding(model_info, tokenizer, opts)
   end
 end

@@ -1,5 +1,5 @@
 defmodule NoteManager.KnowledgeBaseTest do
-  use NoteManager.DataCase, async: false
+  use NoteManager.DataCase, async: true
 
   alias NoteManager.KnowledgeBase, as: KG
   alias NoteManager.KnowledgeBase.Note
