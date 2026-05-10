@@ -1,6 +1,8 @@
 defmodule NoteManager.KnowledgeBase.NoteLink do
   alias NoteManager.KnowledgeBase.Note
 
+  import Ash.Expr
+
   use Ash.Resource,
     otp_app: :note_manager,
     domain: NoteManager.KnowledgeBase,
@@ -18,6 +20,12 @@ defmodule NoteManager.KnowledgeBase.NoteLink do
 
   actions do
     defaults [:read, :destroy, create: :*, update: :*]
+  end
+
+  validations do
+    validate compare(:source_note_id, is_not_equal: ref(:target_note_id)) do
+      on [:create, :update]
+    end
   end
 
   attributes do

@@ -4,9 +4,9 @@ defmodule NoteManager.NoteWikiParsingTest do
   alias NoteManager.KnowledgeBase.Note.ContentParser
   alias NoteManager.KnowledgeBase, as: KG
 
-  @moduletag :focus
-
   require Ash.Query
+
+  @moduletag :focus
 
   setup do
     existing_note = generate(note())
