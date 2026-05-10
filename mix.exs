@@ -40,6 +40,7 @@ defmodule NoteManager.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:mdex, "~> 0.12"},
       {:nimble_options, "~> 1.0"},
       {:exla, "~> 0.9"},
       {:nx, "~> 0.9"},
