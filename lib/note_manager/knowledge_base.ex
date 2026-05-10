@@ -9,6 +9,8 @@ defmodule NoteManager.KnowledgeBase do
       define :update_note, action: :update
       define :list_notes, action: :read
       define :get_note_by_id, action: :read, get_by: :id
+
+      define :search, action: :search
     end
   end
 end

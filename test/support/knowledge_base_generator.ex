@@ -5,10 +5,10 @@ defmodule NoteManager.KnowledgeBaseGenerator do
 
   def note(opts \\ []) do
     changeset_generator(Note, :create,
-      overrides: opts,
       defaults: [
-        content: StreamData.repeatedly(fn -> Faker.Markdown.markdown() end)
-      ]
+        content: StreamData.repeatedly(fn -> "Sample note\n" <> Faker.Markdown.markdown() end)
+      ],
+      overrides: opts
     )
   end
 end

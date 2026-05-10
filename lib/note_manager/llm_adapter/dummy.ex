@@ -8,6 +8,8 @@ defmodule NoteManager.LlmAdapter.Dummy do
   def child_spec(_opts \\ []), do: nil
 
   @impl true
+  def dimensions(nil), do: @default_dim
+
   def dimensions(opts) do
     opts
     |> Keyword.get(
@@ -17,7 +19,7 @@ defmodule NoteManager.LlmAdapter.Dummy do
   end
 
   @impl true
-  def generate(_texts, opts) do
+  def generate(_texts, opts \\ []) do
     Logger.debug("#{__MODULE__}: embedding request received")
 
     for(_ <- 1..dimensions(opts), do: :rand.normal())

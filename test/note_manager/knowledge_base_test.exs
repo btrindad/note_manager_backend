@@ -6,20 +6,21 @@ defmodule NoteManager.KnowledgeBaseTest do
 
   setup do
     [
-      simple_note:  """
-      # Sample Title
-        
-      Note body goes here supporting
+      simple_note:
+        """
+        # Sample Title
+          
+        Note body goes here supporting
 
-      * Markdown content
-      * Listing
-      * and eventually linking 
+        * Markdown content
+        * Listing
+        * and eventually linking 
 
-      ```elixir
-      sample_code.(arg1, arg2)
-      ```
-      """
-      |> String.trim()
+        ```elixir
+        sample_code.(arg1, arg2)
+        ```
+        """
+        |> String.trim()
     ]
   end
 
@@ -67,6 +68,20 @@ defmodule NoteManager.KnowledgeBaseTest do
 
       assert saved_note.content == update_params.content
       assert saved_note.content != note.content
+    end
+  end
+
+  describe "search/1" do
+    setup do
+      generate_many(note(), 5)
+      [sample_note: generate(note(content: "Programming Languages like Elixir are so cool"))]
+    end
+
+    @tag :acceptance
+    test "returns notes with semantic similarity", %{sample_note: note} do
+      assert {:ok, note_list} = KG.search(%{query: "writing code"})
+
+      assert Enum.any?(note_list.results, fn %Note{id: note_id} -> note_id == note.id end)
     end
   end
 end
