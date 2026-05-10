@@ -14,16 +14,28 @@ defmodule NoteManager.KnowledgeBase.Note.ContentParser do
 
   def extract_links(markdown) when is_binary(markdown) do
     with {:ok, doc} <- MDEx.parse_document(markdown, @parsing_options) do
-      doc[%MDEx.WikiLink{}]
-      |> Stream.map(fn link -> link.url end)
-      |> Stream.filter(fn url ->
-        case Ecto.UUID.cast(url) do
-          {:ok, _uuid} -> true
-          :error -> false
-        end
-      end)
-      |> Enum.to_list()
-      |> then(&{:ok, &1})
+      doc
+      |> retrieve_links()
+      |> fetch_note_ids()
     end
+  end
+
+  defp retrieve_links(%MDEx.Document{} = doc) do
+    doc[MDEx.WikiLink]
+  end
+
+  defp fetch_note_ids(nil), do: {:ok, []}
+
+  defp fetch_note_ids(elements) do
+    elements
+    |> Enum.map(fn link -> link.url end)
+    |> Enum.filter(fn url ->
+      case Ecto.UUID.cast(url) do
+        {:ok, _uuid} -> true
+        :error -> false
+      end
+    end)
+    |> Enum.to_list()
+    |> then(&{:ok, &1})
   end
 end

@@ -9,6 +9,15 @@ defmodule NoteManager.KnowledgeBase.NoteLink do
   postgres do
     table "note_links"
     repo NoteManager.Repo
+
+    references do
+      reference :source_note, on_delete: :delete
+      reference :target_note, on_delete: :delete
+    end
+  end
+
+  actions do
+    defaults [:read, :destroy, create: :*, update: :*]
   end
 
   attributes do
