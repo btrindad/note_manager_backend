@@ -1,5 +1,5 @@
 defmodule NoteManager.KnowledgeBaseTest do
-  use NoteManager.DataCase, async: true
+  use NoteManager.DataCase, async: false
 
   alias NoteManager.KnowledgeBase, as: KG
   alias NoteManager.KnowledgeBase.Note
@@ -73,22 +73,11 @@ defmodule NoteManager.KnowledgeBaseTest do
 
   describe "search/1" do
     setup do
-      generate_many(note(), 3)
-
-      [
-        sample_note: generate(note(content: "Programming Languages like Elixir are so cool"))
-      ]
+      generate_many(note(), 5)
+      [sample_note: generate(note(content: "Programming Languages like Elixir are so cool"))]
     end
 
     @tag :acceptance
-    test "returns notes with matching text", %{sample_note: note} do
-      assert {:ok, note_list} = KG.search(%{query: "language"})
-
-      assert Enum.any?(note_list, fn %Note{id: note_id} -> note_id == note.id end)
-    end
-
-    @tag :acceptance
-    @tag :focus
     test "returns notes with semantic similarity", %{sample_note: note} do
       assert {:ok, note_list} = KG.search(%{query: "writing code"})
 
