@@ -45,7 +45,7 @@ defmodule NoteManager.KnowledgeBase.Note do
       primary? true
       accept [:content]
 
-      pipe_through :update_graph
+      pipe_through :update_graph, where: changing(:content)
     end
 
     update :update do
