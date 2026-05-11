@@ -40,6 +40,8 @@ defmodule NoteManager.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:open_api_spex, "~> 3.0"},
+      {:ash_json_api, "~> 1.0"},
       {:mdex, "~> 0.12"},
       {:nimble_options, "~> 1.0"},
       {:exla, "~> 0.9"},
