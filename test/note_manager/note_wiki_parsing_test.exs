@@ -65,7 +65,7 @@ defmodule NoteManager.NoteWikiParsingTest do
                KG.new_note(%{content: content}, load: [neighbors: :id])
     end
 
-    @tag :focus
+    @tag skip: "Feature moved to another branch"
     test "sends a request to the graph database", %{linked_note: content} do
       test_pid = self()
 
