@@ -3,20 +3,12 @@ defmodule NoteManager.KnowledgeBase.Note do
     otp_app: :note_manager,
     domain: NoteManager.KnowledgeBase,
     data_layer: AshPostgres.DataLayer,
-    extensions: AshAi
+    extensions: [AshAi, AshJsonApi.Resource]
 
   alias NoteManager.KnowledgeBase.Changes.ExtractLinksFromNote, as: ExtractLinks
 
-  postgres do
-    table "notes"
-    repo NoteManager.Repo
-
-    custom_statements do
-      statement :vector_idx do
-        up "CREATE INDEX vector_idx ON notes USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 64)"
-        down "DROP INDEX vector_idx;"
-      end
-    end
+  json_api do
+    type "note"
   end
 
   vectorize do
@@ -36,6 +28,18 @@ defmodule NoteManager.KnowledgeBase.Note do
                       :embedding_module,
                       NoteManager.LlmAdapter.Local
                     )
+  end
+
+  postgres do
+    table "notes"
+    repo NoteManager.Repo
+
+    custom_statements do
+      statement :vector_idx do
+        up "CREATE INDEX vector_idx ON notes USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 64)"
+        down "DROP INDEX vector_idx;"
+      end
+    end
   end
 
   actions do
@@ -74,6 +78,7 @@ defmodule NoteManager.KnowledgeBase.Note do
     attribute :content, :string do
       allow_nil? false
       constraints allow_empty?: false
+      public? true
     end
 
     timestamps()
