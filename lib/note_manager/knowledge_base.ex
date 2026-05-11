@@ -12,5 +12,7 @@ defmodule NoteManager.KnowledgeBase do
 
       define :search, action: :search
     end
+
+    resource NoteManager.KnowledgeBase.NoteLink
   end
 end

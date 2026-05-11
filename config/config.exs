@@ -52,7 +52,10 @@ config :note_manager,
   ash_domains: [NoteManager.KnowledgeBase]
 
 # Add the custom Postgrex types
-config :note_manager, NoteManager.Repo, types: NoteManager.PostgrexTypes
+config :note_manager, NoteManager.Repo,
+  types: NoteManager.PostgrexTypes,
+  timeout: 60_000,
+  pool_timeout: 60_000
 
 # Configure the endpoint
 config :note_manager, NoteManagerWeb.Endpoint,
@@ -74,6 +77,7 @@ config :note_manager, NoteManagerWeb.Endpoint,
 # at the `config/runtime.exs`.
 config :note_manager, NoteManager.Mailer, adapter: Swoosh.Adapters.Local
 config :note_manager, :embedding_size, 384
+config :note_manager, NoteManager.LlmAdapter.Local, embedding_processor: :l2_norm
 
 # Configure Elixir's Logger
 config :logger, :default_formatter,

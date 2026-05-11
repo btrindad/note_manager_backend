@@ -5,6 +5,8 @@ defmodule NoteManager.KnowledgeBase.Note do
     data_layer: AshPostgres.DataLayer,
     extensions: AshAi
 
+  alias NoteManager.KnowledgeBase.Changes.ExtractLinksFromNote, as: ExtractLinks
+
   postgres do
     table "notes"
     repo NoteManager.Repo
@@ -42,11 +44,16 @@ defmodule NoteManager.KnowledgeBase.Note do
     create :create do
       primary? true
       accept [:content]
+
+      pipe_through :update_graph, where: changing(:content)
     end
 
     update :update do
       primary? true
       accept [:content]
+
+      pipe_through :update_graph
+      require_atomic? false
     end
 
     read :search do
@@ -70,5 +77,21 @@ defmodule NoteManager.KnowledgeBase.Note do
     end
 
     timestamps()
+  end
+
+  relationships do
+    many_to_many :neighbors, NoteManager.KnowledgeBase.Note do
+      through NoteManager.KnowledgeBase.NoteLink
+
+      source_attribute_on_join_resource :source_note_id
+      destination_attribute_on_join_resource :target_note_id
+      writable? true
+    end
+  end
+
+  pipelines do
+    pipeline :update_graph do
+      change ExtractLinks
+    end
   end
 end
