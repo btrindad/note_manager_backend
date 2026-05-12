@@ -1,0 +1,43 @@
+services:
+  api-init:
+    image: note-manager:latest
+    build: ./
+    environment:
+      DATABASE_URL: "ecto://postgres:super_secret_db_pass@db/note_manager"
+      SECRET_KEY_BASE: MUjY6NsLqalotWKLpOu4YUuaxJnJCzLwY6BXeZiGZ+fDdPuiP692053kCNEy5Em4
+    command:
+      - "/app/bin/migrate"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    image: note-manager:latest
+    build: ./
+    ports:
+      - 4000:443
+    environment:
+      DATABASE_URL: "ecto://postgres:super_secret_db_pass@db/note_manager"
+      SECRET_KEY_BASE: MUjY6NsLqalotWKLpOu4YUuaxJnJCzLwY6BXeZiGZ+fDdPuiP692053kCNEy5Em4
+    depends_on:
+      api-init:
+        condition: service_completed_successfully
+
+
+  db:
+    image: pgvector/pgvector:pg18
+    volumes:
+      - pg_data:/var/lib/postgresql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: super_secret_db_pass
+      POSTGRES_DB: note_manager
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pg_data:
+

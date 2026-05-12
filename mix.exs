@@ -11,7 +11,12 @@ defmodule NoteManager.MixProject do
       aliases: aliases(),
       deps: deps(),
       listeners: [Phoenix.CodeReloader],
-      consolidate_protocols: Mix.env() != :dev
+      consolidate_protocols: Mix.env() != :dev,
+      releases: [
+        note_manager: [
+          steps: [:assemble, &set_exec/1]
+        ]
+      ]
     ]
   end
 
@@ -85,5 +90,19 @@ defmodule NoteManager.MixProject do
       test: ["ash.setup --quiet", "test"],
       precommit: ["compile --warnings-as-errors", "deps.unlock --unused", "format", "test"]
     ]
+  end
+
+  defp set_exec(release) do
+    script_path =
+      release.path
+      |> Path.join("bin")
+
+    script_path
+    |> File.ls!()
+    |> Stream.filter(&Enum.member?(["migrate", "server"], &1))
+    |> Stream.map(&Path.join(script_path, &1))
+    |> Enum.map(&File.chmod(&1, 0o544))
+
+    release
   end
 end
