@@ -63,6 +63,7 @@ RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen \
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
+ENV BUMBLEBEE_CACHE_DIR="/app/models"
 
 WORKDIR "/app"
 RUN chown nobody /app
@@ -74,6 +75,8 @@ ENV MIX_ENV="prod"
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/note_manager ./
 
 USER nobody
+
+RUN mkdir /app/models
 
 # If using an environment that doesn't automatically reap zombie processes, it is
 # advised to add an init process such as tini via `apt-get install`

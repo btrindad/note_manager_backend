@@ -3,28 +3,33 @@ services:
     image: note-manager:latest
     build: ./
     environment:
-      DATABASE_URL: "ecto://postgres:super_secret_db_pass@db/note_manager"
+      DATABASE_URL: "ecto://postgres:super_secret_db_pass@prod-db/note_manager"
       SECRET_KEY_BASE: MUjY6NsLqalotWKLpOu4YUuaxJnJCzLwY6BXeZiGZ+fDdPuiP692053kCNEy5Em4
     command:
       - "/app/bin/migrate"
     depends_on:
-      db:
+      prod-db:
         condition: service_healthy
 
   api:
     image: note-manager:latest
     build: ./
     ports:
-      - 4000:443
+      - 4000:4000
     environment:
-      DATABASE_URL: "ecto://postgres:super_secret_db_pass@db/note_manager"
+      DATABASE_URL: "ecto://postgres:super_secret_db_pass@prod-db/note_manager"
       SECRET_KEY_BASE: MUjY6NsLqalotWKLpOu4YUuaxJnJCzLwY6BXeZiGZ+fDdPuiP692053kCNEy5Em4
+      BUMBLEE_CACHE_DIR: "/app/models"
     depends_on:
       api-init:
         condition: service_completed_successfully
+      prod-db:
+        condition: service_healthy
+    volumes:
+      - model_cache:/app/models
 
 
-  db:
+  prod-db:
     image: pgvector/pgvector:pg18
     volumes:
       - pg_data:/var/lib/postgresql
@@ -40,4 +45,5 @@ services:
 
 volumes:
   pg_data:
+  model_cache:
 
