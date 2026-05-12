@@ -4,10 +4,10 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - pg_data:/var/lib/postgresql
+      - pg_data_dev:/var/lib/postgresql
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
 
 volumes:
-  pg_data:
+  pg_data_dev:

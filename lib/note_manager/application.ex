@@ -38,11 +38,11 @@ defmodule NoteManager.Application do
     :ok
   end
 
-  defp llm_application(nil), do: nil
-  defp llm_application(:local), do: llm_application(NoteManager.LlmAdapter.Local)
+  def llm_application(nil), do: nil
+  def llm_application(:local), do: llm_application(NoteManager.LlmAdapter.Local)
 
-  defp llm_application(model_info) when is_binary(model_info),
+  def llm_application(model_info) when is_binary(model_info),
     do: {NoteManager.LlmAdapter.Local, model: model_info}
 
-  defp llm_application(module) when is_atom(module), do: module.child_spec([])
+  def llm_application(module) when is_atom(module), do: module.child_spec([])
 end

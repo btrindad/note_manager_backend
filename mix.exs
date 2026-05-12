@@ -11,7 +11,12 @@ defmodule NoteManager.MixProject do
       aliases: aliases(),
       deps: deps(),
       listeners: [Phoenix.CodeReloader],
-      consolidate_protocols: Mix.env() != :dev
+      consolidate_protocols: Mix.env() != :dev,
+      releases: [
+        note_manager: [
+          steps: [:assemble, &set_exec/1]
+        ]
+      ]
     ]
   end
 
@@ -40,6 +45,8 @@ defmodule NoteManager.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:open_api_spex, "~> 3.0"},
+      {:ash_json_api, "~> 1.0"},
       {:mdex, "~> 0.12"},
       {:nimble_options, "~> 1.0"},
       {:exla, "~> 0.9"},
@@ -76,11 +83,26 @@ defmodule NoteManager.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ash.setup", "run priv/repo/seeds.exs"],
+      setup: ["deps.get", "ash.setup"],
+      seed: ["run priv/repo/seeds.exs"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ash.setup --quiet", "test"],
       precommit: ["compile --warnings-as-errors", "deps.unlock --unused", "format", "test"]
     ]
+  end
+
+  defp set_exec(release) do
+    script_path =
+      release.path
+      |> Path.join("bin")
+
+    script_path
+    |> File.ls!()
+    |> Stream.filter(&Enum.member?(["migrate", "server"], &1))
+    |> Stream.map(&Path.join(script_path, &1))
+    |> Enum.map(&File.chmod(&1, 0o544))
+
+    release
   end
 end
