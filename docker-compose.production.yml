@@ -5,6 +5,8 @@ services:
     environment:
       DATABASE_URL: "ecto://postgres:super_secret_db_pass@prod-db/note_manager"
       SECRET_KEY_BASE: MUjY6NsLqalotWKLpOu4YUuaxJnJCzLwY6BXeZiGZ+fDdPuiP692053kCNEy5Em4
+    networks:
+      - prod
     command:
       - "/app/bin/migrate"
     depends_on:
@@ -20,6 +22,8 @@ services:
       DATABASE_URL: "ecto://postgres:super_secret_db_pass@prod-db/note_manager"
       SECRET_KEY_BASE: MUjY6NsLqalotWKLpOu4YUuaxJnJCzLwY6BXeZiGZ+fDdPuiP692053kCNEy5Em4
       BUMBLEE_CACHE_DIR: "/app/models"
+    networks:
+      - prod
     depends_on:
       api-init:
         condition: service_completed_successfully
@@ -37,6 +41,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: super_secret_db_pass
       POSTGRES_DB: note_manager
+    networks:
+      - prod
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -46,4 +52,7 @@ services:
 volumes:
   pg_data:
   model_cache:
+
+networks:
+  prod:
 
