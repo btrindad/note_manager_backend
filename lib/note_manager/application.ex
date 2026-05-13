@@ -14,8 +14,9 @@ defmodule NoteManager.Application do
         {DNSCluster, query: Application.get_env(:note_manager, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: NoteManager.PubSub},
         llm_application(Application.get_env(:note_manager, :embedding_module, :local)),
-        # Start a worker by calling: NoteManager.Worker.start_link(arg)
-        # {NoteManager.Worker, arg},
+        {Registry, keys: :unique, name: NoteManager.Queries.Registry},
+        {Task.Supervisor, name: NoteManager.Queries.TaskSupervisor},
+        NoteManager.Queries.QuerySupervisor,
         # Start to serve requests, typically the last entry
         NoteManagerWeb.Endpoint
       ]

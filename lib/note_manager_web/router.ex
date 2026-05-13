@@ -5,6 +5,10 @@ defmodule NoteManagerWeb.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/" do
+    get "/", NoteManagerWeb.HealthController, :check
+  end
+
   scope "/api/json" do
     pipe_through [:api]
 
@@ -17,6 +21,8 @@ defmodule NoteManagerWeb.Router do
 
   scope "/api", NoteManagerWeb do
     pipe_through :api
+
+    resources "/notes", NoteController
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
