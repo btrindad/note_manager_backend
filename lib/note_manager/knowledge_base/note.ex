@@ -3,7 +3,7 @@ defmodule NoteManager.KnowledgeBase.Note do
     otp_app: :note_manager,
     domain: NoteManager.KnowledgeBase,
     data_layer: AshPostgres.DataLayer,
-    extensions: [AshAi, AshJsonApi.Resource]
+    extensions: [AshAi, AshJsonApi.Resource, AshOban]
 
   alias NoteManager.KnowledgeBase.Changes.ExtractLinksFromNote, as: ExtractLinks
 
@@ -21,7 +21,8 @@ defmodule NoteManager.KnowledgeBase.Note do
       name :embedding
     end
 
-    strategy :after_action
+    strategy :ash_oban
+    ash_oban_trigger_name :embed_note_trigger
 
     embedding_model Application.compile_env(
                       :note_manager,
@@ -38,6 +39,20 @@ defmodule NoteManager.KnowledgeBase.Note do
       statement :vector_idx do
         up "CREATE INDEX vector_idx ON notes USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 64)"
         down "DROP INDEX vector_idx;"
+      end
+    end
+  end
+
+  oban do
+    triggers do
+      trigger :embed_note_trigger do
+        action :ash_ai_update_embeddings
+        queue :note_embedding_queue
+        worker_read_action :read
+        worker_module_name __MODULE__.AshOban.Worker.UpdateEmbeddings
+        scheduler_module_name __MODULE__.AshOban.Worker.UpdateEmbeddings
+        scheduler_cron false
+        list_tenants NoteManager.ListTenants
       end
     end
   end

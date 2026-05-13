@@ -20,6 +20,8 @@ defmodule NoteManager.DataCase do
     quote do
       alias NoteManager.Repo
 
+      use Oban.Testing, repo: Repo
+
       import Ecto
       import Ecto.Changeset
       import Ecto.Query

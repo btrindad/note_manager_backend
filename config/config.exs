@@ -12,7 +12,10 @@ config :ash_oban, pro?: false
 config :note_manager, Oban,
   engine: Oban.Engines.Basic,
   notifier: Oban.Notifiers.Postgres,
-  queues: [default: 10],
+  queues: [
+    default: 10,
+    note_embedding_queue: [limit: 15]
+  ],
   repo: NoteManager.Repo,
   plugins: [{Oban.Plugins.Cron, []}]
 
