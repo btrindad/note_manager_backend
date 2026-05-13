@@ -61,10 +61,12 @@ defmodule NoteManager.Queries.QueryServer do
 
   `delay_ms` is a demo knob that makes the task sleep before doing the real
   search — useful for testing fault tolerance (close tab, reopen mid-flight).
+
+  `threshold` overrides the action's default cosine-distance cutoff when set.
   """
-  def search(session_token, query, delay_ms \\ 0) when is_binary(query) do
+  def search(session_token, query, delay_ms \\ 0, threshold \\ nil) when is_binary(query) do
     with {:ok, pid} <- find_or_start(session_token) do
-      GenServer.cast(pid, {:search, query, delay_ms})
+      GenServer.cast(pid, {:search, query, delay_ms, threshold})
       {:ok, pid}
     end
   end
@@ -95,7 +97,7 @@ defmodule NoteManager.Queries.QueryServer do
   end
 
   @impl true
-  def handle_cast({:search, query, delay_ms}, state) do
+  def handle_cast({:search, query, delay_ms, threshold}, state) do
     # If a task is in flight, drop it on the floor — the new query supersedes.
     state =
       case state.task_ref do
@@ -108,7 +110,7 @@ defmodule NoteManager.Queries.QueryServer do
     task =
       Task.Supervisor.async_nolink(
         NoteManager.Queries.TaskSupervisor,
-        fn -> run_query(query, delay_ms) end
+        fn -> run_query(query, delay_ms, threshold) end
       )
 
     new_state = %{
@@ -191,10 +193,13 @@ defmodule NoteManager.Queries.QueryServer do
 
   defp via(session_token), do: {:via, Registry, {@registry, session_token}}
 
-  defp run_query(query, delay_ms) do
+  defp run_query(query, delay_ms, threshold) do
     if is_integer(delay_ms) and delay_ms > 0, do: Process.sleep(delay_ms)
 
-    case NoteManager.KnowledgeBase.search(%{query: query}) do
+    args = %{query: query}
+    args = if is_number(threshold), do: Map.put(args, :threshold, threshold), else: args
+
+    case NoteManager.KnowledgeBase.search(args) do
       {:ok, page} -> {:ok, serialize_page(page)}
       %Ash.Page.Offset{} = page -> {:ok, serialize_page(page)}
       results when is_list(results) -> {:ok, Enum.map(results, &serialize_note/1)}

@@ -45,8 +45,9 @@ defmodule NoteManagerWeb.QueryChannel do
   @impl true
   def handle_in("search", %{"query" => query} = params, socket) when is_binary(query) do
     delay_ms = clamp_delay(params["delay_ms"])
+    threshold = parse_threshold(params["threshold"])
 
-    case QueryServer.search(socket.assigns.session_token, query, delay_ms) do
+    case QueryServer.search(socket.assigns.session_token, query, delay_ms, threshold) do
       {:ok, _pid} -> {:reply, {:ok, %{accepted: true}}, socket}
       {:error, reason} -> {:reply, {:error, %{reason: inspect(reason)}}, socket}
     end
@@ -58,4 +59,8 @@ defmodule NoteManagerWeb.QueryChannel do
 
   defp clamp_delay(n) when is_integer(n) and n >= 0, do: min(n, 60_000)
   defp clamp_delay(_), do: 0
+
+  defp parse_threshold(n) when is_float(n), do: n
+  defp parse_threshold(n) when is_integer(n), do: n * 1.0
+  defp parse_threshold(_), do: nil
 end
