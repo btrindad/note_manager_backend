@@ -71,6 +71,14 @@ defmodule NoteManager.KnowledgeBase.Note do
       primary? true
       accept [:content]
 
+      change fn changeset, _ ->
+        if Ash.Changeset.changing_attribute?(changeset, :content) do
+          Ash.Changeset.change_attribute(changeset, :embedding, nil)
+        else
+          changeset
+        end
+      end
+
       pipe_through :update_graph
       require_atomic? false
     end
