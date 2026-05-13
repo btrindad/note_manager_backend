@@ -114,4 +114,8 @@ defmodule NoteManager.KnowledgeBase.Note do
       change ExtractLinks
     end
   end
+
+  calculations do
+    calculate :embedding_complete?, :boolean, expr(not is_nil(embedding))
+  end
 end
