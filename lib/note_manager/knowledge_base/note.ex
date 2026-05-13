@@ -53,6 +53,7 @@ defmodule NoteManager.KnowledgeBase.Note do
         scheduler_module_name __MODULE__.AshOban.Worker.UpdateEmbeddings
         scheduler_cron false
         list_tenants NoteManager.ListTenants
+        max_attempts 3
       end
     end
   end
