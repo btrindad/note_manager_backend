@@ -1,18 +1,29 @@
 # NoteManager
 
-To start your Phoenix server:
+This acts as the backend API for the Note Management project. This project is the final for CSCI 6421 in Spring 2026 at GWU.
 
-* Run `mix setup` to install and setup dependencies
-* Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## How to Run
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+The easiest way to run this just to interact with it is with Docker.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+```
+docker compose -f docker-compose.production.yml up -d
+```
 
-## Learn more
+This will take care of pretty much everything, and it will take a while the first time. It will first pull the base images, build the
+application, save that application as a local image, stand up and provision the database, and finally launch the application.
 
-* Official website: https://www.phoenixframework.org/
-* Guides: https://hexdocs.pm/phoenix/overview.html
-* Docs: https://hexdocs.pm/phoenix
-* Forum: https://elixirforum.com/c/phoenix-forum
-* Source: https://github.com/phoenixframework/phoenix
+Docker will be listening on port 4000 on your localhost. To view the API Specification visit the URL [http://localhost:4000/api/json/swaggerui].
+
+The available routes are also shown below for your reference.
+
+```
+ *       /api/json/swaggerui         OpenApiSpex.Plug.SwaggerUI [path: "/api/json/open_api", default_model_expand_depth: 4]
+ GET     /api/json/notes/:id         NoteManagerWeb.AshJsonApiRouter NoteManager.KnowledgeBase.Note.read
+ POST    /api/json/notes             NoteManagerWeb.AshJsonApiRouter NoteManager.KnowledgeBase.Note.create
+ DELETE  /api/json/notes/:id         NoteManagerWeb.AshJsonApiRouter NoteManager.KnowledgeBase.Note.destroy
+ GET     /api/json/notes/search      NoteManagerWeb.AshJsonApiRouter NoteManager.KnowledgeBase.Note.search
+ WS      /live/websocket             Phoenix.LiveView.Socket
+ GET     /live/longpoll              Phoenix.LiveView.Socket
+ POST    /live/longpoll              Phoenix.LiveView.Socket
+```

@@ -26,6 +26,8 @@ config :note_manager, NoteManagerWeb.Endpoint,
 # In test we don't send emails
 config :note_manager, NoteManager.Mailer, adapter: Swoosh.Adapters.Test
 
+config :note_manager, NoteManager.GraphDbClient, plug: {Req.Test, NoteManager.GraphDbClient}
+
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false
 
