@@ -99,7 +99,9 @@ defmodule NoteManager.Queries.QueryServer do
     # If a task is in flight, drop it on the floor — the new query supersedes.
     state =
       case state.task_ref do
-        nil -> state
+        nil ->
+          state
+
         ref ->
           Process.demonitor(ref, [:flush])
           %{state | task_ref: nil}
