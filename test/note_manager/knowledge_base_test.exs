@@ -99,7 +99,7 @@ defmodule NoteManager.KnowledgeBaseTest do
 
     @tag :acceptance
     test "returns notes with semantic similarity", %{sample_note: note} do
-      assert {:ok, note_list} = KG.search(%{query: "writing code"})
+      assert {:ok, note_list} = KG.search(%{query: "writing code", threshold: 0.5})
 
       assert Enum.any?(note_list.results, fn %Note{id: note_id} -> note_id == note.id end)
     end

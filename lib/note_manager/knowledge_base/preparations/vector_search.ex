@@ -22,10 +22,15 @@ defmodule NoteManager.KnowledgeBase.Preparations.VectorSearch do
                       doc: "Options to pass to the underlying embedding module",
                       type: :keyword_list
                     ],
+                    threshold_argument: [
+                      type: :atom,
+                      doc:
+                        "Name of the query argument that supplies a per-call threshold. Falls back to :threshold below when the argument is absent."
+                    ],
                     threshold: [
                       doc:
-                        "The similarity threshold to use in the comparison. Only records that are below the threshold will be included in the results",
-                      default: 0.5,
+                        "Fallback similarity threshold when no per-call argument is provided. Only records strictly below this distance are returned.",
+                      default: 0.10,
                       type: :float
                     ]
                   )
@@ -44,7 +49,7 @@ defmodule NoteManager.KnowledgeBase.Preparations.VectorSearch do
   def prepare(query, opts, _context) do
     input_attr = query.arguments[opts[:input_argument]]
     search_field = opts[:search_attribute]
-    threshold = opts[:threshold]
+    threshold = resolve_threshold(query, opts)
 
     Ash.Query.before_action(query, fn query ->
       with {:ok, [search_vector]} <-
@@ -59,5 +64,12 @@ defmodule NoteManager.KnowledgeBase.Preparations.VectorSearch do
         })
       end
     end)
+  end
+
+  defp resolve_threshold(query, opts) do
+    case opts[:threshold_argument] do
+      nil -> opts[:threshold]
+      arg_name -> query.arguments[arg_name] || opts[:threshold]
+    end
   end
 end

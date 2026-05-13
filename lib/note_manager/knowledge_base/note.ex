@@ -90,7 +90,14 @@ defmodule NoteManager.KnowledgeBase.Note do
         constraints allow_empty?: false
       end
 
-      prepare {NoteManager.KnowledgeBase.Preparations.VectorSearch, search_attribute: :embedding}
+      argument :threshold, :float do
+        description "cosine distance cutoff (0=identical, 2=opposite). Lower = stricter."
+        default 0.10
+        constraints min: 0.0, max: 2.0
+      end
+
+      prepare {NoteManager.KnowledgeBase.Preparations.VectorSearch,
+               search_attribute: :embedding, threshold_argument: :threshold}
 
       pagination offset?: true, default_limit: 15
     end
