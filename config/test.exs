@@ -1,4 +1,5 @@
 import Config
+config :note_manager, Oban, testing: :inline
 config :ash, policies: [show_policy_breakdowns?: true], disable_async?: true
 
 # Configure your database

@@ -16,6 +16,11 @@ defmodule NoteManager.Application do
         llm_application(Application.get_env(:note_manager, :embedding_module, :local)),
         {Registry, keys: :unique, name: NoteManager.Queries.Registry},
         {Task.Supervisor, name: NoteManager.Queries.TaskSupervisor},
+        {Oban,
+         AshOban.config(
+           Application.fetch_env!(:note_manager, :ash_domains),
+           Application.fetch_env!(:note_manager, Oban)
+         )},
         NoteManager.Queries.QuerySupervisor,
         # Start to serve requests, typically the last entry
         NoteManagerWeb.Endpoint

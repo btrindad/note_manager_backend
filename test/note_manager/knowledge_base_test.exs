@@ -42,6 +42,14 @@ defmodule NoteManager.KnowledgeBaseTest do
         assert {:ok, val} == Map.fetch(note, key)
       end
     end
+
+    test "schedules a job to generate the embedding", %{params: params} do
+      assert {:ok, note} = KG.new_note(params)
+
+      %Note{embedding: embedding} = Ash.get!(Note, note.id, load: :embedding)
+
+      refute is_nil(embedding)
+    end
   end
 
   describe "KnowledgeBase.destroy_note" do
@@ -69,21 +77,29 @@ defmodule NoteManager.KnowledgeBaseTest do
       assert saved_note.content == update_params.content
       assert saved_note.content != note.content
     end
+
+    test "triggers a new embedding", %{note: note, params: params} do
+      assert {:ok, _} = KG.update_note(note, params)
+
+      %Note{embedding: embedding} = Ash.get!(Note, note.id, load: :embedding)
+
+      assert embedding != note.embedding
+    end
   end
 
   describe "search/1" do
     setup do
       generate_many(note(), 5)
 
-      [
-        sample_note:
-          generate(note_with_embedding(content: "Programming Languages like Elixir are so cool"))
-      ]
+      sample_note =
+        generate(note_with_embedding(content: "Programming Languages like Elixir are so cool"))
+
+      [sample_note: sample_note]
     end
 
     @tag :acceptance
     test "returns notes with semantic similarity", %{sample_note: note} do
-      assert {:ok, note_list} = KG.search(%{query: "writing code"})
+      assert {:ok, note_list} = KG.search(%{query: "writing code", threshold: 0.5})
 
       assert Enum.any?(note_list.results, fn %Note{id: note_id} -> note_id == note.id end)
     end
