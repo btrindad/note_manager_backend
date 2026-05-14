@@ -30,16 +30,82 @@ The available routes are also shown below for your reference.
 
 ## Utilities
 
-Some useful functions for the sake of the demo.
+### Loading Sample Data
 
-Launch an iex session and use the function
+#### Single-Node (Development)
 
-```elixir
-NoteManger.Demo.SampleGenerator.save_notes(20)
+For quick testing on a single node, you can load Wikipedia data interactively:
+
+```bash
+iex -S mix
 ```
 
-This function will create 20 notes based on random wikipedia pages. Note this is hitting actual
-wikipedia so not only will this process potentially take a while, you get rate limited after about
-20.
+Then in the iex prompt:
 
-It's also fun to see the local text model occasionally crash and come right back up!
+```elixir
+NoteManager.Demo.SampleGenerator.save_notes(20)
+```
+
+**Note:** This will block the node while fetching and inserting Wikipedia pages. The node will not respond to client requests during this time.
+
+#### Multi-Node (Production-like / Demonstration)
+
+To load data without blocking API traffic, use the dedicated `seed.load_notes` Mix task on a separate node:
+
+**Setup:** Start a 3-node cluster with nginx load balancer:
+
+```bash
+docker compose -f docker-compose.cluster.yml up -d --scale api=3
+```
+
+**In Terminal 1:** Monitor the cluster:
+
+```bash
+watch -n 1 './demo/cluster_status.sh'
+```
+
+**In Terminal 2:** Load data on a dedicated seed node (does not serve API traffic):
+
+```bash
+docker compose -f docker-compose.cluster.yml run --rm api mix seed.load_notes 50
+```
+
+**In Terminal 3:** Generate HTTP traffic to verify API remains responsive:
+
+```bash
+./demo/traffic.sh
+```
+
+**What you'll see:**
+
+- Terminal 1: All 3 nodes remain healthy and connected.
+- Terminal 2: Notes are being fetched from Wikipedia and inserted (progress shown).
+- Terminal 3: HTTP requests complete successfully (ok count keeps rising), **even while seeding**.
+
+This demonstrates that your distributed system handles long-running background tasks without impacting client requests.
+
+**Options for seed.load_notes:**
+
+```bash
+# Load 20 notes (default)
+mix seed.load_notes
+
+# Load 50 notes
+mix seed.load_notes 50
+
+# Load with custom batch size
+mix seed.load_notes 100 --batch-size 5
+
+# Local multi-node example (if running nodes with iex)
+RELEASE_NODE="note_manager@127.0.0.1" iex -S mix seed.load_notes 30
+```
+
+### Why This Matters
+
+In a single-node setup, long-running tasks (like `save_notes(20)`) block the entire application, making it unresponsive to clients. In a multi-node cluster:
+
+- **Node A**: Runs API server, handles client requests (responsive).
+- **Node B**: Runs seed/batch task, generates and inserts data (independent).
+- **nginx**: Routes requests to healthy nodes, transparently failover if one dies.
+
+Result: Users never notice background tasks. Your system stays live.
