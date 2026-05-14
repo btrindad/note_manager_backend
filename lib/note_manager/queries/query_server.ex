@@ -39,12 +39,12 @@ defmodule NoteManager.Queries.QueryServer do
   Look up or start a QueryServer for the given session token.
   """
   def find_or_start(session_token) do
-    case Registry.lookup(@registry, session_token) do
+    case Horde.Registry.lookup(@registry, session_token) do
       [{pid, _}] ->
         {:ok, pid}
 
       [] ->
-        DynamicSupervisor.start_child(
+        Horde.DynamicSupervisor.start_child(
           NoteManager.Queries.QuerySupervisor,
           {__MODULE__, session_token}
         )
@@ -75,7 +75,7 @@ defmodule NoteManager.Queries.QueryServer do
   Get the current state as a map suitable for pushing to a client on join.
   """
   def snapshot(session_token) do
-    case Registry.lookup(@registry, session_token) do
+    case Horde.Registry.lookup(@registry, session_token) do
       [{pid, _}] -> GenServer.call(pid, :snapshot)
       [] -> %{status: "idle", query: nil, results: nil, error: nil}
     end
@@ -193,7 +193,7 @@ defmodule NoteManager.Queries.QueryServer do
 
   # --- Internals ---
 
-  defp via(session_token), do: {:via, Registry, {@registry, session_token}}
+  defp via(session_token), do: {:via, Horde.Registry, {@registry, session_token}}
 
   defp run_query(query, delay_ms, threshold) do
     if is_integer(delay_ms) and delay_ms > 0, do: Process.sleep(delay_ms)

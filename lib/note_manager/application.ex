@@ -14,7 +14,8 @@ defmodule NoteManager.Application do
         {DNSCluster, query: Application.get_env(:note_manager, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: NoteManager.PubSub},
         llm_application(Application.get_env(:note_manager, :embedding_module, :local)),
-        {Registry, keys: :unique, name: NoteManager.Queries.Registry},
+        {Horde.Registry,
+         [name: NoteManager.Queries.Registry, keys: :unique, members: :auto]},
         {Task.Supervisor, name: NoteManager.Queries.TaskSupervisor},
         {Oban,
          AshOban.config(
