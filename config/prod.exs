@@ -21,7 +21,7 @@ config :swoosh, local: false
 # Do not print debug messages in production
 config :logger, level: :info
 
-config :note_manager, Nx.Serving, batch_size: 10
+# config :note_manager, Nx.Serving, batch_size: 10
 
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.

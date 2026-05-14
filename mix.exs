@@ -26,7 +26,7 @@ defmodule NoteManager.MixProject do
   def application do
     [
       mod: {NoteManager.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :req]
     ]
   end
 
