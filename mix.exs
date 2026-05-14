@@ -45,6 +45,8 @@ defmodule NoteManager.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:html_to_markdown, "~> 3.0"},
+      {:floki, "~> 0.38"},
       {:oban, "~> 2.0"},
       {:ash_oban, "~> 0.8"},
       {:open_api_spex, "~> 3.0"},

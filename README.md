@@ -27,3 +27,19 @@ The available routes are also shown below for your reference.
  GET     /live/longpoll              Phoenix.LiveView.Socket
  POST    /live/longpoll              Phoenix.LiveView.Socket
 ```
+
+## Utilities
+
+Some useful functions for the sake of the demo.
+
+Launch an iex session and use the function
+
+```elixir
+NoteManger.Demo.SampleGenerator.save_notes(20)
+```
+
+This function will create 20 notes based on random wikipedia pages. Note this is hitting actual
+wikipedia so not only will this process potentially take a while, you get rate limited after about
+20.
+
+It's also fun to see the local text model occasionally crash and come right back up!
