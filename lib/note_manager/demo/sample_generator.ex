@@ -1,13 +1,15 @@
 defmodule NoteManager.Demo.SampleGenerator do
   @url "https://en.wikipedia.org/wiki/Special:Random"
+  @max_length 2_000
 
   alias NoteManager.KnowledgeBase, as: KG
 
   def generate_note do
     with {:ok, article} <- fetch_article(@url),
          {:ok, parsed} <- Floki.parse_document(article),
-         {:ok, markdown} <- extract_body(parsed) do
-      markdown.content
+         {:ok, %{content: body}} <- extract_body(parsed) do
+      body
+      |> String.slice(0, @max_length)
     end
   end
 
