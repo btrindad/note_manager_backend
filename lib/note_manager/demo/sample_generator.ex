@@ -4,18 +4,21 @@ defmodule NoteManager.Demo.SampleGenerator do
 
   alias NoteManager.KnowledgeBase, as: KG
 
-  def generate_note do
-    with {:ok, article} <- fetch_article(@url),
+  def generate_note(opts \\ []) do
+    url = Keyword.get(opts, :url, @url)
+    max_length = Keyword.get(opts, :max_length, @max_length)
+
+    with {:ok, article} <- fetch_article(url),
          {:ok, parsed} <- Floki.parse_document(article),
          {:ok, %{content: body}} <- extract_body(parsed) do
       body
-      |> String.slice(0, @max_length)
+      |> String.slice(0, max_length)
     end
   end
 
-  def save_notes(count) when is_integer(count) and count > 0 do
+  def save_notes(count, opts \\ []) when is_integer(count) and count > 0 do
     0..count
-    |> Stream.map(fn _ -> generate_note() end)
+    |> Stream.map(fn _ -> generate_note(opts) end)
     |> Stream.map(fn content -> %{content: content} end)
     |> Ash.bulk_create!(KG.Note, :create, batch_size: 10)
   end
